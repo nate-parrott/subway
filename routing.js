@@ -66,5 +66,5 @@ function travelTimesToAllStations(fromStationId) {
 }
 
 // console.log(travelTime('725', 'F20') / 60);
-travelTimesToAllStations('F20'); // bergen st (F)
+// travelTimesToAllStations('F20'); // bergen st (F)
 

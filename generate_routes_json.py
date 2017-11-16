@@ -113,6 +113,13 @@ for (line, station_id), times in stop_times_by_line_and_station.items():
     arrival_frequencies[station_id][line] = freq
 #     print("{} ({}): every {} seconds".format(stop_name, line, compute_frequency(times)))
 
+# find only the stations that fall on lines:
+stations_on_lines = set()
+for run in runs_by_line.values():
+    for id in run.station_sequence:
+        stations_on_lines.add(id)
+stations_on_lines = {id: stations_by_id[id] for id in stations_on_lines}
+
 lines = {line: 
             {
                 "stations": run.station_sequence, 
@@ -121,7 +128,7 @@ lines = {line:
         for line, run in runs_by_line.items()}
 subway_json = {
     "lines": lines,
-    "stations": stations_by_id
+    "stations": stations_on_lines
 }
 
 open('subway.json', 'w').write(json.dumps(subway_json))
