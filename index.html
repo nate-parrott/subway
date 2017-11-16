@@ -13,6 +13,10 @@
       width: 100%;
     }
   </style>
+  <script src="subway.js"></script>
+  <script src="routing_graph.js"></script>
+  <script src="https://unpkg.com/js-heap@0.3.1/heap.js"></script>
+  <script src="routing.js"></script>
 </head>
 <body>
   <script>
@@ -20,24 +24,22 @@
     let height = 500;
         
     let svg = d3.select("body").append("svg").attr("viewBox", '0 0 ' + width + ' ' + height);
-    d3.json('subway.json', function(err, data) {
-      let {stations, lines} = data;
-      
-      let xValue = (stationId) => stations[stationId].lon;
-      let yValue = (stationId) => stations[stationId].lat;
-      let allStationIds = Object.keys(stations);
-      let xScale = d3.scale.linear().range([0, width]).domain([ d3.min(allStationIds, xValue), d3.max(allStationIds, xValue) ]);
-      let yScale = d3.scale.linear().range([height, 0]).domain([ d3.min(allStationIds, yValue), d3.max(allStationIds, yValue) ]);
-      let xMap = (x) => xScale(xValue(x));
-      let yMap = (y) => yScale(yValue(y));
-      
-      let lineFunc = d3.svg.line().x(xMap).y(yMap).interpolate('linear');
-      svg.selectAll('.line').data(Object.values(lines)).enter().append('path').attr('class', 'line').attr('stroke', (l) => l.color).attr('stroke-width', 2).attr('d', (l) => lineFunc(l.stations)).attr('fill', 'none');
-      
-      // let stationList = Object.values(lines)[0].stations;
-      // svg.selectAll('.stop').data(stationList).enter().append('circle').attr('class', 'stop').attr('r', 3.5).attr('cx', xMap).attr('cy', yMap).style('fill', 'black');
-      svg.selectAll('.stop').data(Object.keys(stations)).enter().append('circle').attr('class', 'stop').attr('r', '1.5').attr('fill', 'black').attr('cx', xMap).attr('cy', yMap);
-    });
+    let {stations, lines} = subway;
+    
+    let xValue = (stationId) => stations[stationId].lon;
+    let yValue = (stationId) => stations[stationId].lat;
+    let allStationIds = Object.keys(stations);
+    let xScale = d3.scale.linear().range([0, width]).domain([ d3.min(allStationIds, xValue), d3.max(allStationIds, xValue) ]);
+    let yScale = d3.scale.linear().range([height, 0]).domain([ d3.min(allStationIds, yValue), d3.max(allStationIds, yValue) ]);
+    let xMap = (x) => xScale(xValue(x));
+    let yMap = (y) => yScale(yValue(y));
+    
+    let lineFunc = d3.svg.line().x(xMap).y(yMap).interpolate('linear');
+    svg.selectAll('.line').data(Object.values(lines)).enter().append('path').attr('class', 'line').attr('stroke', (l) => l.color).attr('stroke-width', 2).attr('d', (l) => lineFunc(l.stations)).attr('fill', 'none');
+    
+    // let stationList = Object.values(lines)[0].stations;
+    // svg.selectAll('.stop').data(stationList).enter().append('circle').attr('class', 'stop').attr('r', 3.5).attr('cx', xMap).attr('cy', yMap).style('fill', 'black');
+    svg.selectAll('.stop').data(Object.keys(stations)).enter().append('circle').attr('class', 'stop').attr('r', '1.5').attr('fill', 'black').attr('cx', xMap).attr('cy', yMap);
     
   </script>
 </body>

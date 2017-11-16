@@ -1,6 +1,7 @@
 import csv
 import json
 from collections import defaultdict
+import shutil
 
 # https://developers.google.com/transit/gtfs/reference
 
@@ -162,3 +163,7 @@ for xfer in csv.DictReader(open('google_transit/transfers.txt')):
 
 open('routing_graph.json', 'w').write(json.dumps({"edges": edges}))
 
+for name in ['subway', 'routing_graph']:
+    d = open(name + '.json').read()
+    c = name + ' = ' + d
+    open(name + '.js', 'w').write(c)

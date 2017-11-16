@@ -46,6 +46,7 @@ def pretty_print_path(path):
 while True:
     from_id = station_from_name(input('from: '))
     to_id = station_from_name(input('to: '))
+    print(' {} -> {}'.format(from_id, to_id))
     path, cost = astar(edges, from_id, to_id)
     print(int(cost / 60), 'minutes')
     pretty_print_path(path)
