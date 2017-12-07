@@ -2,6 +2,16 @@
 <html>
 <head>
 	<meta charset='utf-8'/>
+	<title>NYC Subway Travel Time Map</title>
+	<meta property="og:title" content="NYC Subway Travel Time Map" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="http://subway.nateparrott.com" />
+	<meta property="og:image" content="https://s3.amazonaws.com/easyaf/uploads/09f5d7e8-5fe7-4a4f-85e4-d7b38c49efd6/Screen_Shot_2017-12-07_at_3.34.26_AM.png" />
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@nateparrott">
+	<meta name="twitter:creator" content="@nateparrott">
+	<meta name="twitter:title" content="NYC Subway Travel Time Map">
+	<meta name="twitter:image" content="https://s3.amazonaws.com/easyaf/uploads/09f5d7e8-5fe7-4a4f-85e4-d7b38c49efd6/Screen_Shot_2017-12-07_at_3.34.26_AM.png">
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <style>
     html, body {
@@ -88,13 +98,13 @@
   <script src='map.js'></script>
 	<div id='info'>
 		<div id='initial'>
-			<h1>Click a Stop!</h1>
+			<h1>Click a Stop</h1>
 		</div>
 		<div id='explanation'>
 			<h1>NYC Travel Time Map</h1>
-			<p>When you click a stop, the map adjusts so that every other stop‘s distance is proportional to travel time.</p>
+			<p>When you click a stop, the map adjusts so that every other stop‘s distance is proportional to travel time on the subway.</p>
 			<p>Your can use the trackpad or scroll wheel to zoom, and drag to move around the map.</p>
-			<p class='fine-print'>Travel time predcictions are based on the MTA‘s published schedule, assuming an 8 AM weekday departure. They may be a little optimistic these days.</p>
+			<p class='fine-print'>Travel time predictions are based on the MTA‘s published schedule, assuming an 8 AM weekday departure. They may be a little optimistic these days.</p>
 			<p id='attribution'>
 				by <a href='http://twitter.com/nateparrott'>Nate Parrott</a> | see the <a href='https://github.com/nate-parrott/subway'>code</a>
 			</p>
