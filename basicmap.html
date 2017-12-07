@@ -25,38 +25,12 @@
         
     let svg = d3.select("body").append("svg").attr("viewBox", '0 0 ' + width + ' ' + height);
     let {stations, lines} = subway;
-		
-		let computeStationPositions = (originStationId) => {
-			let originLat = stations[originStationId].lat;
-			let originLon = stations[originStationId].lon;
-			let travelTimes = travelTimesToAllStations(originStationId);
-			
-			let maxTravelTime = 70 * 60;
-			
-			let positions = {};
-			for (let stationId of Object.keys(stations)) {
-				let {lat, lon} = stations[stationId];
-				
-				let deltaY = lat - originLat;
-				let deltaX = (lon - originLon) * 0.767;
-				let angle = Math.atan2(deltaY, deltaX);
-				let origDist = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-				
-				let dist = (travelTimes[stationId] || maxTravelTime) / maxTravelTime;
-				positions[stationId] = {x: Math.cos(angle) * dist, y: Math.sin(angle) * dist};
-			}
-			
-			return positions;
-		}
-		
-		let stationPositions = computeStationPositions('127'); // times sq
-		console.log(stationPositions);
     
-    let xValue = (stationId) => stationPositions[stationId].x;
-    let yValue = (stationId) => stationPositions[stationId].y;
+    let xValue = (stationId) => stations[stationId].lon;
+    let yValue = (stationId) => stations[stationId].lat;
     let allStationIds = Object.keys(stations);
-    let xScale = d3.scaleLinear().range([0, width]).domain([ -1, 1 ]);
-    let yScale = d3.scaleLinear().range([height, 0]).domain([ -1, 1 ]);
+    let xScale = d3.scaleLinear().range([0, width]).domain([ d3.min(allStationIds, xValue), d3.max(allStationIds, xValue) ]);
+    let yScale = d3.scaleLinear().range([height, 0]).domain([ d3.min(allStationIds, yValue), d3.max(allStationIds, yValue) ]);
     let xMap = (x) => xScale(xValue(x));
     let yMap = (y) => yScale(yValue(y));
     

@@ -32,7 +32,14 @@ def astar(edges, start_node, end_node):
                     heapq.heappush(heap, (new_cost, new_path))
     return None
 
+def time_between(node1, node2):
+    for edge in edges.get(node1, []):
+        if edge['to_node'] == node2:
+            return edge['time']
+    return None
+
 def pretty_print_path(path):
+    prev_node = None
     for node in path:
         splitter = None
         if '+' in node: splitter = '+'
@@ -40,11 +47,15 @@ def pretty_print_path(path):
         if splitter:
             station_id, line = node.split(splitter)
             print("({}) {}".format(stations[station_id]['name'], line))
+            if prev_node:
+                print("   in {} mins".format(time_between(prev_node, node) / 60))
         else:
             print(stations[node]['name'])
+        prev_node = node
 
 while True:
     from_id = station_from_name(input('from: '))
+    print("From id: {}".format(from_id))
     to_id = station_from_name(input('to: '))
     print(' {} -> {}'.format(from_id, to_id))
     path, cost = astar(edges, from_id, to_id)

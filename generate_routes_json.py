@@ -28,7 +28,7 @@ routes_by_id = {}
 for route in csv.DictReader(open('google_transit/routes.txt')):
     routes_by_id[route['route_id']] = route
 
-weekday_service_ids = set(['A20171105WKD', 'B20171105WKD', 'R20171105WKD'])
+weekday_service_ids = set(['A20171105WKD', 'B20171105WKD'])
 trips_by_id = {}
 
 for trip in csv.DictReader(open('google_transit/trips.txt')):
@@ -78,20 +78,27 @@ class TrainRun(object):
             # next_name = stations_by_id[next_station]['name']
             # print("Time between {} and {}: {} mins".format(prev_name, next_name, duration / 60))
         return times
+    
+    def hashable_orderless_route(self):
+        seq = self.station_sequence
+        if seq[0] > seq[1]: seq = list(reversed(seq))
+        return tuple(seq)
 
 def select_best_run(runs, time=9*60*60):
     return min(runs, key=lambda run: abs(run.midpoint_time - time))
 
 runs_by_trip_id = {id: TrainRun(id, times) for id, times in stop_times_by_trip_id.items()}
 runs_by_line = defaultdict(list)
+route_set_by_line = defaultdict(set)
 for run in runs_by_trip_id.values():
     runs_by_line[run.line].append(run)
+    route_set_by_line[run.line].add(run.hashable_orderless_route())
 
 runs_by_line = {line: select_best_run(runs) for line, runs in runs_by_line.items()}    
 
 # compute the frequency of train arrivals between 8am and 8pm at each station, in terms of avg seconds between trains:
 def compute_frequency(times):
-    min_time = 8 * 60 * 60
+    min_time = 7 * 60 * 60
     max_time = 20 * 60 * 60
     times = [t for t in times if t >= min_time and t <= max_time]
     if len(times) == 0: return None
@@ -102,6 +109,7 @@ def is_terminus(line, station_id):
     return station_id in (run.station_sequence[0], run.station_sequence[-1])
 
 arrival_frequencies = defaultdict(dict)
+all_arrival_freqs = []
 for (line, station_id), times in stop_times_by_line_and_station.items():
     freq = compute_frequency(times)
     if freq is None: continue
@@ -111,7 +119,10 @@ for (line, station_id), times in stop_times_by_line_and_station.items():
         freq *= 2 # b/c trains are going in two directions
     
     arrival_frequencies[station_id][line] = freq
+    all_arrival_freqs.append(freq)
 #     print("{} ({}): every {} seconds".format(stop_name, line, compute_frequency(times)))
+
+print(sorted(all_arrival_freqs))
 
 # find only the stations that fall on lines:
 stations_on_lines = set()
@@ -133,13 +144,13 @@ subway_json = {
 
 open('subway.json', 'w').write(json.dumps(subway_json))
 
-
 # compute a routing graph:
 # the node for being at a station is represented by a station_id
 # the node for being on a train at a station in a given direction is referenced by "station_id+LINE" or "station_id-LINE", depending on direction 
 edges = defaultdict(list) # keys are the source nodes; values are a list of ({to_node: node id, time: time in seconds})
 for line, run in runs_by_line.items():
     times_between_stops = run.times_between_stops()
+    # print(line, max(times_between_stops.values()))
     
     for (station_seq, direction) in [(run.station_sequence, '+'), (list(reversed(run.station_sequence)), '-')]:
         # add edges for boarding and exiting the train:
