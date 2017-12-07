@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8' />
+	<title>NYC Transit Time Map: how does it work?</title>
+	<style>
+		body {
+			background-color: #363638;
+			color: white;
+			line-height: 1.4;
+			font-family: "HelveticaNeue", "Helvetica", "Arial", sans-serif;
+			-webkit-font-smoothing: antialiased;
+		}
+		article {
+			padding: 0 20px;
+			margin: auto;
+			max-width: 700px;
+			margin-top: 4em;
+		}
+		a:link, a:visited {
+			color: inherit;
+		}
+	</style>
+</head>
+<body>
+	<article>
+		<h1>NYC Transit Time Map: how does it work?</h1>
+		<section>
+			<p>
+				My favorite thing about the NYC subway map is how it's not geographically accurate—it disorts the sizes and shapes of boroughs to make the map easier to read. I thought it might be fun to make a subway map that distorts geography an a different way: based on travel times between stops.
+			</p>
+			<p>
+				All the data that went into the map comes from <a href='http://web.mta.info/developers/download.html'>the MTA's GTFS feed</a>, which provides information about routes, stops and schedules.
+			</p>
+			<p>
+				The map is rendered using <a href='https://d3js.org'>D3</a> — initially, acccording to the latitude and longitude of each stop. But when you click a stop, a simulation is run to calculate the travel time from that stop to every other stop. Using train departure times from the MTA, and the MTA's predicted <em>transfer times</em> within stations, the code counts how many minutes it takes for a simulated passenger departing the selected stop at 8:00 on a weekday would arrive at each stop on the map. [You can see the code for this on Github — the simulation is done in <a href='https://github.com/nate-parrott/subway/blob/master/virtual_rider.js'>virtual_rider.js</a>].
+			</p>
+			<p>
+				Once travel times are computed, positioning each stop is done by measuring the geographic angle from the selected stop to each other stop, but adjusting the <em>distance</em> from the selected stop so that it's proportional to travel time.
+			</p>
+			<p>For more technical details, see the <a href='https://github.com/nate-parrott/subway/tree/master#nyc-travel-time-map'>Readme</a> on GitHub.</p>
+		</section>
+	</article>
+</body>
+</html>
