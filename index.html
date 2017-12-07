@@ -92,16 +92,18 @@
     
 	    let lineFunc = d3.line().x(xMap).y(yMap).curve(d3.curveLinear);
 			let lineSelection = svg.selectAll('.line').data(Object.values(lines));
-	    lineSelection.enter().append('path').attr('class', 'line').attr('stroke', (l) => l.color).attr('stroke-width', 2).merge(lineSelection).attr('d', (l) => lineFunc(l.stations)).attr('fill', 'none');
+	    lineSelection.enter().append('path').attr('class', 'line').attr('stroke', (l) => l.color).attr('stroke-width', 2).merge(lineSelection).transition().attr('d', (l) => lineFunc(l.stations)).attr('fill', 'none');
     
 	    // let stationList = Object.values(lines)[0].stations;
 	    // svg.selectAll('.stop').data(stationList).enter().append('circle').attr('class', 'stop').attr('r', 3.5).attr('cx', xMap).attr('cy', yMap).style('fill', 'black');
 			let stopSelection = svg.selectAll('.stop').data(Object.keys(stations));
-	    let merged = stopSelection.enter().append('circle').attr('class', 'stop').attr('r', '1.5').attr('fill', 'black').attr('stroke', 'transparent').attr('stroke-width', 10).merge(stopSelection).attr('cx', xMap).attr('cy', yMap);
+	    let merged = stopSelection.enter().append('circle').attr('class', 'stop').attr('r', '1.5').attr('fill', 'black').attr('stroke', 'transparent').attr('stroke-width', 10).merge(stopSelection);
+			merged.transition().attr('cx', xMap).attr('cy', yMap);
 			addClickHandlers(merged);
 			
-			let homeSelection = svg.selectAll('home').data([homeStationId]);
-			merged = homeSelection.enter().append('circle').attr('class', 'home').attr('r', '3').attr('fill', 'white').attr('stroke', 'black').attr('stroke-width', 2).merge(homeSelection).attr('cx', xMap).attr('cy', yMap);
+			let homeSelection = svg.selectAll('.home').data([1]);
+			merged = homeSelection.enter().append('circle').attr('class', 'home').attr('r', '3').attr('fill', 'white').attr('stroke', 'black').attr('stroke-width', 2).merge(homeSelection);
+			merged.transition().attr('cx', () => xScale(0)).attr('cy', () => yScale(0));
 			addClickHandlers(merged);
 		}
 		showHomeStation('R32');
