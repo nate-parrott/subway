@@ -2,6 +2,8 @@
 let atStopState = (id) => "at_stop:" + id;
 let onTripState = (id) => "on_trip:" + id;
 
+let MAX_TIME = 1000 * 60;
+
 class StateMap {
 	constructor() {
 		this.earliestRidersAtStates = {};
@@ -60,7 +62,7 @@ let _computeTravelTimes = (startStationId, endStationIds, transfers, events, sta
 	let travelTimes = {};
 	for (let stationId of endStationIds) {
 		let rider = stateMap.earliestRidersAtStates[atStopState(stationId)];
-		travelTimes[stationId] = rider ? rider.time - startTime : 400 * 60;
+		travelTimes[stationId] = rider ? rider.time - startTime : MAX_TIME;
 	}
 	return travelTimes;
 }

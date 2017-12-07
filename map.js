@@ -81,10 +81,19 @@ let setStationPositions = (stationPositions) => {
   let yScale = d3.scaleLinear().range([height, 0]).domain([ -1, 1 ]);
   let xMap = (x) => xScale(xValue(x));
   let yMap = (y) => yScale(yValue(y));
+	let stationPositionIsReasonable = (stationId) => {
+		let x = xValue(stationId);
+		let y = yValue(stationId);
+		return x > -5 && x < 5 && y > -5 && y < 5;
+	}
 
   let lineFunc = d3.line().x(xMap).y(yMap).curve(d3.curveNatural);
+	let createLine = (subwayLine) => {
+		return lineFunc(subwayLine.stations.filter(stationPositionIsReasonable));
+	}
+	
 	let lineSelection = container.selectAll('.line').data(Object.values(lines));
-  lineSelection.enter().append('path').attr('class', 'line').attr('stroke', (l) => l.color).attr('stroke-width', 3).merge(lineSelection).transition().attr('d', (l) => lineFunc(l.stations)).attr('fill', 'none');
+  lineSelection.enter().append('path').attr('class', 'line').attr('stroke', (l) => l.color).attr('stroke-width', 3).merge(lineSelection).transition().attr('d', createLine).attr('fill', 'none');
 
 	let stopSelection = container.selectAll('.stop').data(Object.keys(stations));
   let merged = stopSelection.enter().append('circle').attr('class', 'stop').attr('r', '2').attr('fill', 'black').merge(stopSelection);
