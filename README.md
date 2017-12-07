@@ -1,5 +1,7 @@
 # NYC Travel Time Map
 
+![Animation](mapgif.gif)
+
 ## How does it work?
 
 The main page is `index.html`, but most of the code is in `map.js`. `map.js` uses `d3.js` to render the map based on JSON data
