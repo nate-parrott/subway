@@ -15,7 +15,7 @@ svg.call(zoom);
 
 let maxTravelTime = 70 * 60;
 
-let hourLine = container.append("circle").attr("class", "hour").attr("cx", width/2).attr("cy", height/2).attr('r', 60*60/maxTravelTime * 250).attr('opacity', 0);
+let hourLine = container.append("circle").attr("class", "hour").attr("cx", width/2).attr("cy", height/2).attr('r', 60*60/maxTravelTime * 250) // .attr('opacity', 0);
 
 let {stations, lines} = subway;
 		
