@@ -27,7 +27,7 @@ class StateMap {
 
 class Rider {
 	constructor(states, time) {
-		this.states = states; // parts are strings
+		this.states = states; // states are strings
 		this.time = time;
 		this.state = states.length ? states[states.length-1] : null;
 	}

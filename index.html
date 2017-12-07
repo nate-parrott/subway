@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset='utf-8'/>
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <style>
     html, body {
       height: 100%;
       margin: 0;
-			font-family: sans-serif;
+			font-family: "HelveticaNeue", "Helvetica", "Arial", sans-serif;
+			-webkit-font-smoothing: antialiased;
     }
     svg {
       background-color: #f8f8ff;
@@ -37,6 +39,41 @@
 			fill: transparent;
 			z-index: -1;
 		}
+		#info {
+			position: fixed;
+			top: 2vh;
+			left: 2vh;
+			width: 25vw;
+			background-color: #36363f;
+			color: white;
+			padding: 10px;
+			line-height: 1.4;
+		}
+		#info h1 {
+			font-size: 1.2em;
+			margin-top: 0;
+			border-top: 2px solid white;
+			padding-top: 5px;
+		}
+		#info p {
+			
+		}
+		#info .fine-print {
+			opacity: 0.5;
+			font-size: small;
+		}
+		#explanation {
+			display: none;
+		}
+		a:link, a:visited {
+			color: inherit;
+		}
+		#attribution {
+			margin-top: 2em;
+			text-align: right;
+			font-size: small;
+			margin-bottom: 0;
+		}
   </style>
   <script src="subway.js"></script>
   <script src="gtfs_json.js"></script>
@@ -44,113 +81,20 @@
   <script src="virtual_rider.js"></script>
 </head>
 <body>
-  <script>
-    let width = 500;
-    let height = 500;
-    
-    let svg = d3.select("body").append("svg").attr("viewBox", '0 0 ' + width + ' ' + height);
-		let container = svg.append('g');
-
-		let zoomed = () => {
-			console.log(d3.event.transform)
-		  container.attr("transform", d3.event.transform);
-		}
-		let zoom = d3.zoom()
-    .scaleExtent([0.7, 4])
-    .on("zoom", zoomed);
-		svg.call(zoom);
-		
-		let maxTravelTime = 70 * 60;
-		
-		container.append("circle").attr("class", "hour").attr("cx", width/2).attr("cy", height/2).attr('r', 60*60/maxTravelTime * 250);
-		
-    let {stations, lines} = subway;
-				
-		let travelTimes = null;
-		
-		let defaultStop = '127'; // times sq
-		
-		let computeStationPositions = (originStationId) => {
-			let originLat = stations[originStationId || defaultStop].lat;
-			let originLon = stations[originStationId || defaultStop].lon;
-			if (originStationId) {
-				travelTimes = computeTravelTimes(originStationId, Object.keys(stations), gtfs_json, 8 * 60 * 60, 'weekdays');
-			} else {
-				travelTimes = null;
-			}
-						
-			let positions = {};
-			for (let stationId of Object.keys(stations)) {
-				let {lat, lon} = stations[stationId];
-				
-				let deltaY = lat - originLat;
-				let deltaX = (lon - originLon) * 0.767;
-				let angle = Math.atan2(deltaY, deltaX) + 30 / 180 * Math.PI;
-				let origDist = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-				
-				let dist = originStationId ? (travelTimes[stationId]) / maxTravelTime : origDist * 5;
-				positions[stationId] = {x: Math.cos(angle) * dist, y: Math.sin(angle) * dist};
-			}
-			
-			return positions;
-		}
-		
-		let tooltip = document.createElement('div');
-		tooltip.setAttribute('class', 'tooltip');
-		tooltip.style.display = 'none';
-		document.body.appendChild(tooltip);
-		
-		let shouldHideTooltip = true;
-		let addClickHandlers = (selection) => {
-			selection.on('click', (d) => {
-				    	showHomeStation(d);
-				    }).on('mouseenter', (d) => {
-							shouldHideTooltip = false;
-				    	tooltip.style.top = (d3.event.pageY + 10) + 'px';
-							tooltip.style.left = (d3.event.pageX + 10) + 'px';
-							tooltip.style.display = 'block';
-							let innerHTML = "<strong>" + stations[d].name + "</strong><br/>";
-							if (travelTimes) {
-								let minutesAway = (travelTimes[d] / 60 | 0);
-								innerHTML += minutesAway + ' minutes away';
-							}
-							tooltip.innerHTML = innerHTML;
-				    }).on('mouseleave', (d) => {
-							shouldHideTooltip = true;
-							setTimeout(() => {
-								if (shouldHideTooltip) tooltip.style.display = 'none';
-							}, 100);
-				    })
-		}
-		
-		let showHomeStation = (homeStationId) => {
-			let stationPositions = computeStationPositions(homeStationId);
-    
-	    let xValue = (stationId) => stationPositions[stationId].x;
-	    let yValue = (stationId) => stationPositions[stationId].y;
-	    let allStationIds = Object.keys(stations);
-	    let xScale = d3.scaleLinear().range([0, width]).domain([ -1, 1 ]);
-	    let yScale = d3.scaleLinear().range([height, 0]).domain([ -1, 1 ]);
-	    let xMap = (x) => xScale(xValue(x));
-	    let yMap = (y) => yScale(yValue(y));
-    
-	    let lineFunc = d3.line().x(xMap).y(yMap).curve(d3.curveLinear);
-			let lineSelection = container.selectAll('.line').data(Object.values(lines));
-	    lineSelection.enter().append('path').attr('class', 'line').attr('stroke', (l) => l.color).attr('stroke-width', 3).merge(lineSelection).transition().attr('d', (l) => lineFunc(l.stations)).attr('fill', 'none');
-    
-	    // let stationList = Object.values(lines)[0].stations;
-	    // svg.selectAll('.stop').data(stationList).enter().append('circle').attr('class', 'stop').attr('r', 3.5).attr('cx', xMap).attr('cy', yMap).style('fill', 'black');
-			let stopSelection = container.selectAll('.stop').data(Object.keys(stations));
-	    let merged = stopSelection.enter().append('circle').attr('class', 'stop').attr('r', '0.5').attr('stroke', 'black').attr('stroke-width', 5).merge(stopSelection);
-			merged.transition().attr('cx', xMap).attr('cy', yMap);
-			addClickHandlers(merged);
-			
-			let homeSelection = container.selectAll('.home').data([1]);
-			merged = homeSelection.enter().append('circle').attr('class', 'home').attr('r', '3').attr('fill', 'white').attr('stroke', 'black').attr('stroke-width', 2).merge(homeSelection);
-			merged.transition().attr('cx', () => xScale(0)).attr('cy', () => yScale(0));
-			addClickHandlers(merged);
-		}
-		showHomeStation(null); // '127'
-  </script>
+  <script src='map.js'></script>
+	<div id='info'>
+		<div id='initial'>
+			<h1>Click a Stop!</h1>
+		</div>
+		<div id='explanation'>
+			<h1>NYC Travel Time Map</h1>
+			<p>When you click a stop, the map adjusts so that every other stop‘s distance is proportional to travel time.</p>
+			<p>Your can use the trackpad or scroll wheel to zoom, and drag to move around the map.</p>
+			<p class='fine-print'>Travel time is based on the MTA‘s published schedule (lol), assuming an 8 AM weekday departure.</p>
+			<p id='attribution'>
+				by <a href='http://twitter.com/nateparrott'>Nate Parrott</a> | see the <a href='https://github.com/nate-parrott/subway'>code</a>
+			</p>
+		</div>
+	</div>
 </body>
 </html>
