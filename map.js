@@ -127,6 +127,8 @@ let setHomeStationId = (homeStationId) => {
 }
 
 updateMap(null, null);
+// preload 8am:
+getSchedule(window.schedule);
 
 $(() => {
 	$('#timePicker li').click((e) => {
