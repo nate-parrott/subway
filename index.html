@@ -21,6 +21,16 @@
 			font-size: small;
 			padding: 4px 8px;
 		}
+		svg {
+			cursor: -webkit-grab;
+			cursor: -moz-grab;
+		}
+		.stop, .home {
+			cursor: pointer;
+		}
+		.line, .stop {
+	    vector-effect: non-scaling-stroke;
+		}
   </style>
   <script src="subway.js"></script>
   <script src="gtfs_json.js"></script>
@@ -40,7 +50,7 @@
 		  container.attr("transform", d3.event.transform);
 		}
 		let zoom = d3.zoom()
-    .scaleExtent([0.5, 3])
+    .scaleExtent([0.7, 4])
     .on("zoom", zoomed);
 		svg.call(zoom);
 		
@@ -48,10 +58,16 @@
 				
 		let travelTimes = null;
 		
+		let defaultStop = '127'; // times sq
+		
 		let computeStationPositions = (originStationId) => {
-			let originLat = stations[originStationId].lat;
-			let originLon = stations[originStationId].lon;
-			travelTimes = computeTravelTimes(originStationId, Object.keys(stations), gtfs_json, 8 * 60 * 60, 'weekdays');
+			let originLat = stations[originStationId || defaultStop].lat;
+			let originLon = stations[originStationId || defaultStop].lon;
+			if (originStationId) {
+				travelTimes = computeTravelTimes(originStationId, Object.keys(stations), gtfs_json, 8 * 60 * 60, 'weekdays');
+			} else {
+				travelTimes = null;
+			}
 			
 			let maxTravelTime = 70 * 60;
 			
@@ -64,7 +80,7 @@
 				let angle = Math.atan2(deltaY, deltaX) + 30 / 180 * Math.PI;
 				let origDist = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 				
-				let dist = (travelTimes[stationId]) / maxTravelTime;
+				let dist = originStationId ? (travelTimes[stationId]) / maxTravelTime : origDist * 5;
 				positions[stationId] = {x: Math.cos(angle) * dist, y: Math.sin(angle) * dist};
 			}
 			
@@ -85,8 +101,12 @@
 				    	tooltip.style.top = (d3.event.pageY + 10) + 'px';
 							tooltip.style.left = (d3.event.pageX + 10) + 'px';
 							tooltip.style.display = 'block';
-							let minutesAway = (travelTimes[d] / 60 | 0);
-							tooltip.innerHTML = "<strong>" + stations[d].name + "</strong><br/>" + minutesAway + ' minutes away';
+							let innerHTML = "<strong>" + stations[d].name + "</strong><br/>";
+							if (travelTimes) {
+								let minutesAway = (travelTimes[d] / 60 | 0);
+								innerHTML += minutesAway + ' minutes away';
+							}
+							tooltip.innerHTML = innerHTML;
 				    }).on('mouseleave', (d) => {
 							shouldHideTooltip = true;
 							setTimeout(() => {
@@ -113,7 +133,7 @@
 	    // let stationList = Object.values(lines)[0].stations;
 	    // svg.selectAll('.stop').data(stationList).enter().append('circle').attr('class', 'stop').attr('r', 3.5).attr('cx', xMap).attr('cy', yMap).style('fill', 'black');
 			let stopSelection = container.selectAll('.stop').data(Object.keys(stations));
-	    let merged = stopSelection.enter().append('circle').attr('class', 'stop').attr('r', '1.5').attr('fill', 'black').attr('stroke', 'transparent').attr('stroke-width', 10).merge(stopSelection);
+	    let merged = stopSelection.enter().append('circle').attr('class', 'stop').attr('r', '0.5').attr('stroke', 'black').attr('stroke-width', 5).merge(stopSelection);
 			merged.transition().attr('cx', xMap).attr('cy', yMap);
 			addClickHandlers(merged);
 			
@@ -122,7 +142,7 @@
 			merged.transition().attr('cx', () => xScale(0)).attr('cy', () => yScale(0));
 			addClickHandlers(merged);
 		}
-		showHomeStation('R32');
+		showHomeStation(null); // '127'
   </script>
 </body>
 </html>
