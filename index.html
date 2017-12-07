@@ -14,9 +14,9 @@
     }
   </style>
   <script src="subway.js"></script>
-  <script src="routing_graph.js"></script>
+  <script src="gtfs_json.js"></script>
   <script src="https://unpkg.com/js-heap@0.3.1/heap.js"></script>
-  <script src="routing.js"></script>
+  <script src="virtual_rider.js"></script>
 </head>
 <body>
   <script>
@@ -29,7 +29,7 @@
 		let computeStationPositions = (originStationId) => {
 			let originLat = stations[originStationId].lat;
 			let originLon = stations[originStationId].lon;
-			let travelTimes = travelTimesToAllStations(originStationId);
+			let travelTimes = computeTravelTimes(originStationId, Object.keys(stations), gtfs_json, 8 * 60 * 60, 'weekdays');
 			
 			let maxTravelTime = 70 * 60;
 			
@@ -39,18 +39,19 @@
 				
 				let deltaY = lat - originLat;
 				let deltaX = (lon - originLon) * 0.767;
-				let angle = Math.atan2(deltaY, deltaX);
+				let angle = Math.atan2(deltaY, deltaX) + 30 / 180 * Math.PI;
 				let origDist = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 				
-				let dist = (travelTimes[stationId] || maxTravelTime) / maxTravelTime;
+				let dist = (travelTimes[stationId]) / maxTravelTime;
 				positions[stationId] = {x: Math.cos(angle) * dist, y: Math.sin(angle) * dist};
 			}
 			
 			return positions;
 		}
 		
-		let stationPositions = computeStationPositions('127'); // times sq
-		console.log(stationPositions);
+		let homeStationId = 'R32';
+		let stationPositions = computeStationPositions(homeStationId); // times sq
+		// console.log(stationPositions);
     
     let xValue = (stationId) => stationPositions[stationId].x;
     let yValue = (stationId) => stationPositions[stationId].y;
@@ -66,6 +67,7 @@
     // let stationList = Object.values(lines)[0].stations;
     // svg.selectAll('.stop').data(stationList).enter().append('circle').attr('class', 'stop').attr('r', 3.5).attr('cx', xMap).attr('cy', yMap).style('fill', 'black');
     svg.selectAll('.stop').data(Object.keys(stations)).enter().append('circle').attr('class', 'stop').attr('r', '1.5').attr('fill', 'black').attr('cx', xMap).attr('cy', yMap);
+		svg.selectAll('home').data([homeStationId]).enter().append('circle').attr('class', 'home').attr('r', '3').attr('fill', 'white').attr('stroke', 'black').attr('stroke-width', 2).attr('cx', xMap).attr('cy', yMap);
     
   </script>
 </body>
