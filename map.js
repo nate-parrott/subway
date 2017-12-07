@@ -17,7 +17,15 @@ svg.call(zoom);
 
 let maxTravelTime = 70 * 60;
 
-let hourLine = container.append("circle").attr("class", "hour").attr("cx", width/2).attr("cy", height/2).attr('r', 60*60/maxTravelTime * 250) // .attr('opacity', 0);
+//let hourLine = container.append("circle").attr("class", "hour").attr("cx", width/2).attr("cy", height/2).attr('r', 60*60/maxTravelTime * 250) // .attr('opacity', 0);
+let hourLineSvgSize = 60 * 60 / maxTravelTime * width;
+
+let createHourCircle= (href) => {
+	return container.append("image").attr("xlink:href", href).attr("x", (width - hourLineSvgSize) / 2).attr("y", (height - hourLineSvgSize) / 2).attr("width", hourLineSvgSize).attr("height", hourLineSvgSize);
+}
+
+let hourCircleBlank = createHourCircle('OneHourWithoutLabel.svg');
+let hourCircle = createHourCircle('OneHour.svg').attr('opacity', 0);
 
 let {stations, lines} = subway;
 		
@@ -108,7 +116,8 @@ let setStationPositions = (stationPositions) => {
 
 let updateMap = (homeStationId, schedule) => {
 	if (homeStationId) {
-		hourLine.transition().attr('opacity', 1);
+		hourCircleBlank.transition().attr('opacity', 0);
+		hourCircle.transition().attr('opacity', 1);
 		document.getElementById('initial').style.display = 'none';
 		document.getElementById('explanation').style.display = 'block';
 	}
