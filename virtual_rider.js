@@ -36,18 +36,18 @@ class Rider {
 	}
 }
 
-let computeTravelTimes = (startStationId, endStationIds, gtfs_json, startTime, serviceGroup) => {
+let _computeTravelTimes = (startStationId, endStationIds, transfers, events, startTime) => {
 	let stateMap = new StateMap();
 	
 	let emptyPath = new Rider([], startTime);
-	stateMap.addRiderAndTransfersByAppendingStop(emptyPath, startStationId, startTime, gtfs_json.transfers);
+	stateMap.addRiderAndTransfersByAppendingStop(emptyPath, startStationId, startTime, transfers);
 	// console.log(stateMap);
 	
-	for (let {time, trip_id, stop_id, route_name} of gtfs_json.events_by_service_group[serviceGroup]) {
+	for (let {time, trip_id, stop_id, route_name} of events) {
 		// model exiting the train:
 		let riderOnTrain = stateMap.earliestRidersAtStates[onTripState(trip_id)];
 		if (riderOnTrain && riderOnTrain.time <= time) {
-			stateMap.addRiderAndTransfersByAppendingStop(riderOnTrain, stop_id, time, gtfs_json.transfers);
+			stateMap.addRiderAndTransfersByAppendingStop(riderOnTrain, stop_id, time, transfers);
 		}
 		// model boarding the train:
 		let riderOnPlatform = stateMap.earliestRidersAtStates[atStopState(stop_id)];
@@ -60,10 +60,27 @@ let computeTravelTimes = (startStationId, endStationIds, gtfs_json, startTime, s
 	let travelTimes = {};
 	for (let stationId of endStationIds) {
 		let rider = stateMap.earliestRidersAtStates[atStopState(stationId)];
-		travelTimes[stationId] = rider ? rider.time - startTime : null;
+		travelTimes[stationId] = rider ? rider.time - startTime : 400 * 60;
 	}
 	return travelTimes;
 }
+
+let scheduleCache = {};
+let getSchedule = (name, callback) => {
+	if (scheduleCache[name]) {
+		callback(scheduleCache[name]);
+	} else {
+		d3.json('/schedules/' + name + '.json', (schedule) => {
+			scheduleCache[name] = schedule;
+			callback(schedule);
+		})
+	}
+}
+let computeTravelTimes = (startStationId, scheduleName, callback) => {
+	getSchedule(scheduleName, (schedule) => {
+		callback(_computeTravelTimes(startStationId, Object.keys(subway.stations), gtfs_transfers, schedule.events, schedule.start_time));
+	});
+};
 
 // let HOURS = 60 * 60;
 // console.log(computeTravelTimes('127', Object.keys(subway.stations), 8*HOURS, gtfs_json, 'weekdays'));

@@ -38,9 +38,9 @@
 			cursor: -moz-grab;
 		}
 		.stop, .home {
-			cursor: pointer;
+			cursor: default;
 		}
-		.line, .stop {
+		.line, .stop, .home {
 	    vector-effect: non-scaling-stroke;
 		}
 		.stop {
@@ -88,9 +88,30 @@
 			font-size: small;
 			margin-bottom: 0;
 		}
+		#timePicker h6 {
+			text-transform: uppercase;
+			font-weight: bold;
+			margin-bottom: 0;
+		}
+		#timePicker ul {
+			padding: 0;
+			margin-top: 0;
+		}
+		#timePicker li {
+			cursor: default;
+			opacity: 0.5;
+		}
+		#timePicker li.selected {
+			text-decoration: underline;
+			opacity: 1;
+		}
+		#timePicker li:hover {
+			text-decoration: underline;
+		}
   </style>
   <script src="subway.js"></script>
-  <script src="gtfs_json.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="schedules/transfers.js"></script>
   <script src="https://unpkg.com/js-heap@0.3.1/heap.js"></script>
   <script src="virtual_rider.js"></script>
 </head>
@@ -103,7 +124,14 @@
 		<div id='explanation'>
 			<h1>NYC Travel Time Map</h1>
 			<p>When you click a stop, the map adjusts so that every other stop‘s distance is proportional to travel time on the subway.</p>
-			<p>Your can use the trackpad or scroll wheel to zoom, and drag to move around the map.</p>
+			<div id='timePicker'>
+				<h6>Travel time:</h6>
+				<ul>
+					<li class='selected' data-schedule='weekday_8am'>Weekday 8AM</li>
+					<li data-schedule='sunday_afternoon'>Sunday 1PM</li>
+					<li data-schedule='weekday_3am'>Weekday 3AM</li>
+				</ul>
+			</div>
 			<p class='fine-print'>Travel time predictions are based on the MTA‘s published schedule, assuming an 8 AM weekday departure. They may be a little optimistic these days.</p>
 			<p id='attribution'>
 				by <a href='http://twitter.com/nateparrott'>Nate Parrott</a> | <a href='https://github.com/nate-parrott/subway'>github</a> | <a href='/howitworks.html'>how it works</a>

@@ -5,7 +5,7 @@ import os
 
 HOURS = 60 * 60
 
-def gtfs_json(gtfs_path, included_service_groups=[], min_time=0, max_time=48*HOURS):
+def gtfs_json(gtfs_path, service_group, min_time=0, max_time=48*HOURS):
     def read_csv(name):
         return list(csv.DictReader(open(os.path.join(gtfs_path, name + '.txt'))))
     
@@ -32,25 +32,20 @@ def gtfs_json(gtfs_path, included_service_groups=[], min_time=0, max_time=48*HOU
         'sunday': ['A20171105SUN', 'B20171105SUN'],
         'weekdays': ['A20171105WKD', 'B20171105WKD']
     }
+    service_ids = service_groups[service_group]
     
-    events_by_service_group = {}
-    for service_group, service_ids in service_groups.items():
-        if service_group in included_service_groups:
-            events = []
-            for stop_time in stop_times:
-                trip = trips_by_id[stop_time['trip_id']]
-                route = routes_by_id[trip['route_id']]
-                if trip['service_id'] in service_ids:
-                    time = time_str_to_float(stop_time['departure_time'])
-                    if time >= min_time and time <= max_time:
-                        stop_id = resolve_stop_id(stop_time['stop_id'])
-                        events.append({"time": time, "trip_id": stop_time['trip_id'], "stop_id": stop_id, "route_name": route['route_short_name']})
-            events.sort(key=lambda x: x['time'])
-            events_by_service_group[service_group] = events
-    return {
-        "transfers": transfers,
-        "events_by_service_group": events_by_service_group
-    }
+
+    events = []
+    for stop_time in stop_times:
+        trip = trips_by_id[stop_time['trip_id']]
+        route = routes_by_id[trip['route_id']]
+        if trip['service_id'] in service_ids:
+            time = time_str_to_float(stop_time['departure_time'])
+            if time >= min_time and time <= max_time:
+                stop_id = resolve_stop_id(stop_time['stop_id'])
+                events.append({"time": time, "trip_id": stop_time['trip_id'], "stop_id": stop_id, "route_name": route['route_short_name']})
+    events.sort(key=lambda x: x['time'])
+    return transfers, events
         
 def time_str_to_float(t): # in seconds
     parts = t.split(':')
@@ -59,5 +54,15 @@ def time_str_to_float(t): # in seconds
 assert time_str_to_float('01:23:00') == 1 * 60 * 60 + 23 * 60
 
 if __name__ == '__main__':
-    j = gtfs_json('google_transit', ['weekdays'], 8*HOURS, 11*HOURS)
-    open('gtfs_json.js', 'w').write('gtfs_json = ' + json.dumps(j))
+    schedules = [
+        ('weekday_8am', 'weekdays', 8, 11),
+        ('weekday_midnight', 'weekdays', 0, 4),
+        ('weekday_3am', 'weekdays', 3, 8),
+        ('sunday_afternoon', 'sunday', 13, 17)
+    ]
+    for (name, service_group, start_hour, end_hour) in schedules:
+        transfers, events = gtfs_json('google_transit', service_group, start_hour*HOURS, end_hour*HOURS)
+        open('schedules/{}.json'.format(name), 'w').write(json.dumps({"events": events, "start_time": start_hour*HOURS}))
+    open('schedules/transfers.js', 'w').write('gtfs_transfers = ' + json.dumps(transfers))
+    
+
