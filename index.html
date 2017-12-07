@@ -65,17 +65,22 @@
 		tooltip.style.display = 'none';
 		document.body.appendChild(tooltip);
 		
+		let shouldHideTooltip = true;
 		let addClickHandlers = (selection) => {
 			selection.on('click', (d) => {
 				    	showHomeStation(d);
 				    }).on('mouseenter', (d) => {
+							shouldHideTooltip = false;
 				    	tooltip.style.top = (d3.event.pageY + 10) + 'px';
 							tooltip.style.left = (d3.event.pageX + 10) + 'px';
 							tooltip.style.display = 'block';
 							let minutesAway = (travelTimes[d] / 60 | 0);
 							tooltip.innerHTML = "<strong>" + stations[d].name + "</strong><br/>" + minutesAway + ' minutes away';
 				    }).on('mouseleave', (d) => {
-							tooltip.style.display = 'none';
+							shouldHideTooltip = true;
+							setTimeout(() => {
+								if (shouldHideTooltip) tooltip.style.display = 'none';
+							}, 100);
 				    })
 		}
 		
