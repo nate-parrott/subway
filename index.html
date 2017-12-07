@@ -33,6 +33,10 @@
 		.line, .stop {
 	    vector-effect: non-scaling-stroke;
 		}
+		.stop {
+			stroke-width: 15;
+			stroke: transparent;
+		}
 		.hour {
 			stroke: rgba(0,0,100,0.1);
 			stroke-width: 1px;
@@ -90,7 +94,7 @@
 			<h1>NYC Travel Time Map</h1>
 			<p>When you click a stop, the map adjusts so that every other stop‘s distance is proportional to travel time.</p>
 			<p>Your can use the trackpad or scroll wheel to zoom, and drag to move around the map.</p>
-			<p class='fine-print'>Travel time is based on the MTA‘s published schedule (lol), assuming an 8 AM weekday departure.</p>
+			<p class='fine-print'>Travel time predcictions are based on the MTA‘s published schedule, assuming an 8 AM weekday departure. They may be a little optimistic these days.</p>
 			<p id='attribution'>
 				by <a href='http://twitter.com/nateparrott'>Nate Parrott</a> | see the <a href='https://github.com/nate-parrott/subway'>code</a>
 			</p>

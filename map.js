@@ -5,8 +5,8 @@ let svg = d3.select("body").append("svg").attr("viewBox", '0 0 ' + width + ' ' +
 let container = svg.append('g');
 
 let zoomed = () => {
-	console.log(d3.event.transform)
   container.attr("transform", d3.event.transform);
+	container.selectAll('.stop').attr('r', (2.0 / d3.event.transform.k));
 }
 let zoom = d3.zoom()
 .scaleExtent([0.7, 4])
@@ -98,7 +98,7 @@ let showHomeStation = (homeStationId) => {
   lineSelection.enter().append('path').attr('class', 'line').attr('stroke', (l) => l.color).attr('stroke-width', 3).merge(lineSelection).transition().attr('d', (l) => lineFunc(l.stations)).attr('fill', 'none');
 
 	let stopSelection = container.selectAll('.stop').data(Object.keys(stations));
-  let merged = stopSelection.enter().append('circle').attr('class', 'stop').attr('r', '0.5').attr('stroke', 'black').attr('stroke-width', 5).merge(stopSelection);
+  let merged = stopSelection.enter().append('circle').attr('class', 'stop').attr('r', '2').attr('fill', 'black').merge(stopSelection);
 	merged.transition().attr('cx', xMap).attr('cy', yMap);
 	addClickHandlers(merged);
 	
