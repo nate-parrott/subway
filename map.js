@@ -8,10 +8,9 @@ let zoomed = () => {
   container.attr("transform", d3.event.transform);
 	container.selectAll('.stop').attr('r', (2.0 / d3.event.transform.k));
 	container.selectAll('.home').attr('r', (3.0 / d3.event.transform.k));
-	
 }
 let zoom = d3.zoom()
-.scaleExtent([0.7, 4])
+.scaleExtent([0.7, 5])
 .on("zoom", zoomed);
 svg.call(zoom);
 

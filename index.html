@@ -12,6 +12,7 @@
 	<meta name="twitter:creator" content="@nateparrott">
 	<meta name="twitter:title" content="NYC Subway Travel Time Map">
 	<meta name="twitter:image" content="http://subway.nateparrott.com/og.png">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <style>
     html, body {
@@ -107,6 +108,20 @@
 		}
 		#timePicker li:hover {
 			text-decoration: underline;
+		}
+		@media screen and (max-width: 500px) {
+			.stop {
+				stroke-width: 22px;
+			}
+			#info {
+				width: auto;
+				right: 2vh;
+				top: auto;
+				bottom: 2vh;
+				max-height: 20vh;
+				overflow-y: auto;
+				-webkit-overflow-scrolling: touch;
+			}
 		}
   </style>
   <script src="subway.js"></script>
