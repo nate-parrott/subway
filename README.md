@@ -12,3 +12,15 @@ If you'd like to set this up yourself, you'll need to unzip the `google_transit.
  These are required by `virtual_rider.js`, which implements Djiksta-like algorithm for simulating a rider's journey
  from a starting stop throughout the system. `virtual_rider.js` is invoked by `map.js` whenever a stop is clicked,
  and the results are used to shift the distance of each stop away from the clicked stop.
+
+## Adapting to another city
+
+If your city's transit system provides data in the GTFS format, you can _probably_ get this map working fairly well for it. Here's a rough set of steps, which may be incomplete:
+
+1. Download and unzip the gtfs data, and place the folder (rename it `google_transit` if it's not called that already).
+
+2. Use Python 3 to run `generate_routes_json.py` This generates a file called `subway.json`, which you'll need.
+
+3. Use Python 3 to run `gtfs_json.py` — this generates a new copy of the `schedules/` folder and its contents.
+
+Feel free to post an issue if you have any questions!
